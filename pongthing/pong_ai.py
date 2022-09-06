@@ -31,7 +31,6 @@ def main(genomes, config):
         net = neat.nn.FeedForwardNetwork.create(g, config)
         nets.append(net)
         paddles.append(Paddle(white, 10, 100))
-        print("eep")
         ge.append(g)
        
     for paddle in paddles:
@@ -51,11 +50,8 @@ def main(genomes, config):
 '''
     for paddle in paddles:
         ball = Ball(white,10,10)
-        ball.rect.x = 345
-        ball.rect.y = 195
         balls.append(ball)
         all_sprites_list.add(ball)
-        print("e")
 
 
     '''
@@ -108,6 +104,8 @@ def main(genomes, config):
         '''
         #Check if the ball is bouncing against any of the 4 walls:
         for ball in balls:
+            ball.rect.x = 345
+            ball.rect.y = 195
             if ball.rect.x>=690:
                 ball.rect.x = 345
                 ball.rect.y = 195
