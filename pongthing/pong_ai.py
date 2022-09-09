@@ -102,8 +102,6 @@ def main(genomes, config):
         all_sprites_list.update()
         '''
         #Check if the ball is bouncing against any of the 4 walls:
-        ball.rect.x = 345
-        ball.rect.y = 195
         if ball.rect.x>=690:
             ball.rect.x = 345
             ball.rect.y = 195
