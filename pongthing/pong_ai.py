@@ -25,7 +25,6 @@ def main(genomes, config):
     ge = []
     all_sprites_list = pygame.sprite.Group()
     counter = []
-    balls = []
     for genome_id, g in genomes:
         g.fitness = 0
         net = neat.nn.FeedForwardNetwork.create(g, config)
@@ -39,6 +38,7 @@ def main(genomes, config):
         all_sprites_list.add(paddle)
         count = 0
         counter.append(count)
+
    
     wall = Paddle(white, 10, 10000)
     wall.rect.x = 20
@@ -48,11 +48,9 @@ def main(genomes, config):
     paddleB.rect.x = 670
     paddleB.rect.y = 200
 '''
-    for paddle in paddles:
-        ball = Ball(white,10,10)
-        balls.append(ball)
-        all_sprites_list.add(ball)
-
+    ball = Ball(white,10,10)
+    ball.rect.x = 345
+    ball.rect.y = 195
 
     '''
     paddleC = Paddle(white, 10, 100)
@@ -62,6 +60,7 @@ def main(genomes, config):
    
 
     all_sprites_list.add(wall)
+    all_sprittes_list.add(ball)
     #all_sprites_list.add(paddleC)
     #more than one paddle per side works
     #loop for main game not just single player
@@ -85,7 +84,7 @@ def main(genomes, config):
         #Moving the paddles when the user uses the arrow keys (player A) or "W/S" keys (player B)
        
         #increase paddle fitness each second or so
-        
+       
            
        
         keys = pygame.key.get_pressed()
@@ -103,38 +102,49 @@ def main(genomes, config):
         all_sprites_list.update()
         '''
         #Check if the ball is bouncing against any of the 4 walls:
-        for ball in balls:
+        ball.rect.x = 345
+        ball.rect.y = 195
+        if ball.rect.x>=690:
             ball.rect.x = 345
             ball.rect.y = 195
-            if ball.rect.x>=690:
-                ball.rect.x = 345
-                ball.rect.y = 195
-                ball.velocity[0] = -ball.velocity[0]
-            if ball.rect.x<=0:
-                ball.rect.x = 345
-                ball.rect.y = 195
-                ball.velocity[0] = -ball.velocity[0]
-            if ball.rect.y>490:
-                ball.velocity[1] = -ball.velocity[1]
-            if ball.rect.y<0:
-                ball.velocity[1] = -ball.velocity[1]
-            
+            ball.velocity[0] = -ball.velocity[0]
+        if ball.rect.x<=0:
+            ball.rect.x = 345
+            ball.rect.y = 195
+            ball.velocity[0] = -ball.velocity[0]
+        if ball.rect.y>490:
+            ball.velocity[1] = -ball.velocity[1]
+        if ball.rect.y<0:
+            ball.velocity[1] = -ball.velocity[1]
+           
 
-        
+       
         for paddle in paddles:
             if paddle.rect.x < ball.rect.x:
-                counter[paddles.index(paddle)] += 1
-                ge[paddles.index(paddle)].fitness += 5
-               
-                if counter[paddles.index(paddle)] == 5:
-                    paddles.pop(paddles.index(paddle))
-                    ge.pop(paddles.index(paddle))
-                    nets.pop(paddles.index(paddle))
-                    '''
-            if pygame.sprite.collide_mask(ball, wall) or pygame.sprite.collide_mask(ball, paddle):
+ 
+            #this might resolve those fucking issues so remember what this does and also dont submit this homework with this comment still here itll look bad
+            if pygame.sprite.collide_mask(ball, wall):
                 ball.bounce()
                
-'''
+            if pygame.sprite.collide_mask(ball, paddle):
+                goodOne = paddles.index(paddle)
+                for paddle in paddles:
+                    if goodOne != paddles.index(paddle):
+                        ge.fitness[paddles.index(paddle)] -= 2
+                        counter[paddles.index(paddle)] += 1
+                        goodOne = None
+                    if goodOne == paddles.index(paddle):
+                        ge[paddles.index(paddle)].fitness += 5
+                    if counter[paddles.index(paddle)] == 5:
+                        paddles.pop(paddles.index(paddle))
+                        ge.pop(paddles.index(paddle))
+                        nets.pop(paddles.index(paddle))
+                       
+                   
+                   
+                ball.bounce()
+               
+
         for x, paddle in enumerate(paddles):
             ge[x].fitness += 0.1
            
@@ -149,7 +159,7 @@ def main(genomes, config):
         pygame.draw.line(screen, white, [349, 0], [349, 500], 5)
         #draw them sprites
         all_sprites_list.draw(screen)
-        
+       
         #Display scores:
         font = pygame.font.Font(None, 74)
         text = font.render(str(scoreA), 1, white)
@@ -185,4 +195,3 @@ if __name__ == "__main__":
     local_dir = os.path.dirname(__file__)
     config_path = os.path.join(local_dir, "config-feedforward.txt")
     run(config_path)
-
