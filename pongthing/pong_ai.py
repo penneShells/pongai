@@ -146,7 +146,7 @@ def main(genomes, config):
         for x, paddle in enumerate(paddles):
             ge[x].fitness += 0.1
            
-            output = nets[paddles.index(paddle)].activate((paddle.rect.y, balls[x].rect.x, balls[x].rect.y))
+            output = nets[paddles.index(paddle)].activate((paddles[x].rect.y, ball.rect.x, ball.rect.y))
             if output[0] > 0.5:
                 paddle.moveUp(1)
             if output[1] > 0.5:
