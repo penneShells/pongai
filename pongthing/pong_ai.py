@@ -11,6 +11,8 @@ pygame.init()
 black = (0,0,0)
 white = (255, 255, 255)
 
+    
+
 def main(genomes, config):
     black = (0,0,0)
     white = (255, 255, 255)
@@ -60,8 +62,14 @@ def main(genomes, config):
             if event.type == pygame.QUIT:
                 mainLoop = False
             elif event.type==pygame.KEYDOWN:
-                    if event.key==pygame.K_x: #Pressing the x Key will quit the game
-                         carryOn=False
+                if event.key==pygame.K_x: #Pressing the x Key will quit the game
+                    carryOn=False
+                if event.key==pygame.K_p:
+                    print(len(paddles))
+                    for x, paddle in enumerate(paddles):
+                        print(ge[x].fitness)
+                        
+                        
 
         #Check if the ball is bouncing against any of the 4 walls:
         for ball in balls:
@@ -70,14 +78,15 @@ def main(genomes, config):
                 ball.rect.y = 195
                 ball.velocity[0] = -ball.velocity[0]
                 counter[balls.index(ball)] += 1
-            for x, count in enumerate(counter):
-                if counter[x] == 1:
+            for x, paddle in enumerate(paddles):
+                if counter[x] == 3:
+                    paddle.kill()
                     counter.pop(x)
                     paddles.pop(x)
                     ge.pop(x)
                     nets.pop(x)
-                    all_sprites_list.remove(x)
                     balls.pop(x)
+                    
             if ball.rect.x<=0:
                 ball.rect.x = 345
                 ball.rect.y = 195
@@ -93,16 +102,30 @@ def main(genomes, config):
                    
             if pygame.sprite.collide_mask(balls[x], paddles[x]):
                 ge[x].fitness += 10
-                ball.bounce()
+                ball.rect.x = 345
+                ball.rect.y = random.randint(200, 400)
+                ball.velocity[1] = -ball.velocity[1]
+                
                        
         for x, paddle in enumerate(paddles):
             ge[x].fitness += 0.1
            
             output = nets[paddles.index(paddle)].activate((paddles[x].rect.y, balls[x].rect.x, balls[x].rect.y))
             if output[0] > 0.5:
-                paddle.moveUp(1)
-            if output[1] > 0.5:
-                paddle.moveDown(1)
+                if balls[x].rect.y < paddles[x].rect.y:
+                    ge[x].fitness += 6
+                paddle.moveUp(20)
+                ge[x].fitness += 3
+            elif output[1] > 0.5:
+                if balls[x].rect.y > paddles[x].rect.y:
+                    ge[x].fitness += 6
+                paddle.moveDown(20)
+                ge[x].fitness += 3
+            else:
+                ge[x].fitness -= 0.8
+            
+
+        
 
         #drawing things goes here
         screen.fill(black)
@@ -113,7 +136,7 @@ def main(genomes, config):
 
         #update screen
         pygame.display.flip()
-
+        
         #60 fps
         clock.tick(60)
         all_sprites_list.update()
@@ -130,9 +153,10 @@ def run(config_path):
     p.add_reporter(neat.StdOutReporter(True))
     stats = neat.StatisticsReporter()
     p.add_reporter(stats)
-
+    
     winner = p.run(main, 50)
-    with open("winner.pkl", "wb") as f:
+    
+    with open("winner2.pkl", "wb") as f:
         pickle.dump(winner, f)
         f.close
    
@@ -142,5 +166,3 @@ if __name__ == "__main__":
     local_dir = os.path.dirname(__file__)
     config_path = os.path.join(local_dir, "config-feedforward.txt")
     run(config_path)
-
-
